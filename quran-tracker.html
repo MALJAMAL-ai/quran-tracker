@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جدول حفظ القرآن الكريم</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #8a6e2f;
+    --dark: #0d1117;
+    --dark2: #141b24;
+    --dark3: #1c2535;
+    --dark4: #243045;
+    --green: #2ecc71;
+    --green-dim: #1a7a44;
+    --text: #e8dfc8;
+    --text-dim: #9a8f78;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(46,204,113,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    margin-bottom: 28px;
+  }
+
+  .header .bismillah {
+    font-family: 'Amiri', serif;
+    font-size: clamp(20px, 5vw, 28px);
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-family: 'Amiri', serif;
+    font-size: clamp(22px, 6vw, 36px);
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .header .subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--dark2);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .stat-card:hover { border-color: rgba(201,168,76,0.35); }
+
+  .stat-value {
+    font-family: 'Amiri', serif;
+    font-size: clamp(22px, 5vw, 32px);
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  /* Progress bar */
+  .progress-section {
+    background: var(--dark2);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .progress-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+
+  .progress-pct {
+    font-family: 'Amiri', serif;
+    font-size: 18px;
+    color: var(--gold);
+  }
+
+  .progress-track {
+    height: 10px;
+    background: var(--dark4);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 0;
+  }
+
+  /* Juz filter */
+  .filter-section {
+    margin-bottom: 20px;
+  }
+
+  .filter-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .juz-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .juz-pill {
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: var(--dark2);
+    color: var(--text-dim);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .juz-pill:hover { border-color: var(--gold); color: var(--gold); }
+  .juz-pill.active { background: var(--gold); color: var(--dark); border-color: var(--gold); font-weight: 700; }
+  .juz-pill.complete { border-color: var(--green-dim); color: var(--green); }
+  .juz-pill.active.complete { background: var(--green); border-color: var(--green); color: var(--dark); }
+
+  /* Pages grid */
+  .juz-block {
+    margin-bottom: 28px;
+  }
+
+  .juz-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .juz-title {
+    font-family: 'Amiri', serif;
+    font-size: 18px;
+    color: var(--gold-light);
+  }
+
+  .juz-badge {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--dark3);
+    padding: 3px 8px;
+    border-radius: 99px;
+    margin-right: auto;
+  }
+
+  .juz-check-all {
+    font-size: 11px;
+    color: var(--gold-dim);
+    cursor: pointer;
+    padding: 4px 10px;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 99px;
+    transition: all 0.2s;
+    background: none;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .juz-check-all:hover { border-color: var(--gold); color: var(--gold); }
+
+  .pages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+    gap: 6px;
+  }
+
+  .page-btn {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 1.5px solid rgba(201,168,76,0.15);
+    background: var(--dark3);
+    color: var(--text-dim);
+    font-size: 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: scale(1.05);
+    z-index: 1;
+  }
+
+  .page-btn.memorized {
+    background: linear-gradient(135deg, #1a3a28, #1f4a30);
+    border-color: var(--green-dim);
+    color: var(--green);
+  }
+
+  .page-btn.memorized::after {
+    content: '✓';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 8px;
+    color: rgba(46,204,113,0.6);
+  }
+
+  /* Reset btn */
+  .footer-actions {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .reset-btn {
+    padding: 10px 24px;
+    background: none;
+    border: 1px solid rgba(255,80,80,0.25);
+    color: rgba(255,100,100,0.6);
+    border-radius: 99px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    border-color: rgba(255,80,80,0.6);
+    color: rgba(255,100,100,1);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--dark2);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-light);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-family: 'Tajawal', sans-serif;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .pages-grid { grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 5px; }
+    .page-btn { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="bismillah">﷽</div>
+    <h1>جدول حفظ القرآن الكريم</h1>
+    <div class="subtitle">٦٠٤ صفحة · صفحة يومياً · ~٢ سنة للختم</div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-memorized">0</div>
+      <div class="stat-label">صفحة محفوظة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-remaining">604</div>
+      <div class="stat-label">صفحة متبقية</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-juz">0</div>
+      <div class="stat-label">جزء مكتمل</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-title">التقدم الكلي في الحفظ</span>
+      <span class="progress-pct" id="stat-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-label">انتقل إلى الجزء:</div>
+    <div class="juz-pills" id="juz-pills"></div>
+  </div>
+
+  <div id="juz-blocks"></div>
+
+  <div class="footer-actions">
+    <button class="reset-btn" onclick="resetAll()">🗑 إعادة تعيين كل التقدم</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Quran: 30 juz, each juz = ~20 pages, total 604 pages
+// Page distribution per juz (standard mushaf)
+const JUZ_DATA = [
+  { name: 'الجزء الأول', start: 1, end: 21 },
+  { name: 'الجزء الثاني', start: 22, end: 41 },
+  { name: 'الجزء الثالث', start: 42, end: 61 },
+  { name: 'الجزء الرابع', start: 62, end: 81 },
+  { name: 'الجزء الخامس', start: 82, end: 101 },
+  { name: 'الجزء السادس', start: 102, end: 121 },
+  { name: 'الجزء السابع', start: 122, end: 141 },
+  { name: 'الجزء الثامن', start: 142, end: 161 },
+  { name: 'الجزء التاسع', start: 162, end: 181 },
+  { name: 'الجزء العاشر', start: 182, end: 201 },
+  { name: 'الجزء الحادي عشر', start: 202, end: 221 },
+  { name: 'الجزء الثاني عشر', start: 222, end: 241 },
+  { name: 'الجزء الثالث عشر', start: 242, end: 261 },
+  { name: 'الجزء الرابع عشر', start: 262, end: 281 },
+  { name: 'الجزء الخامس عشر', start: 282, end: 301 },
+  { name: 'الجزء السادس عشر', start: 302, end: 321 },
+  { name: 'الجزء السابع عشر', start: 322, end: 341 },
+  { name: 'الجزء الثامن عشر', start: 342, end: 361 },
+  { name: 'الجزء التاسع عشر', start: 362, end: 381 },
+  { name: 'الجزء العشرون', start: 382, end: 401 },
+  { name: 'الجزء الحادي والعشرون', start: 402, end: 421 },
+  { name: 'الجزء الثاني والعشرون', start: 422, end: 441 },
+  { name: 'الجزء الثالث والعشرون', start: 442, end: 461 },
+  { name: 'الجزء الرابع والعشرون', start: 462, end: 481 },
+  { name: 'الجزء الخامس والعشرون', start: 482, end: 501 },
+  { name: 'الجزء السادس والعشرون', start: 502, end: 521 },
+  { name: 'الجزء السابع والعشرون', start: 522, end: 541 },
+  { name: 'الجزء الثامن والعشرون', start: 542, end: 561 },
+  { name: 'الجزء التاسع والعشرون', start: 562, end: 581 },
+  { name: 'الجزء الثلاثون', start: 582, end: 604 },
+];
+
+// Load state
+let memorized = new Set(JSON.parse(localStorage.getItem('quran_memorized') || '[]'));
+
+function save() {
+  localStorage.setItem('quran_memorized', JSON.stringify([...memorized]));
+}
+
+function togglePage(page) {
+  if (memorized.has(page)) {
+    memorized.delete(page);
+  } else {
+    memorized.add(page);
+  }
+  save();
+  updateUI();
+  const btn = document.getElementById('p' + page);
+  if (btn) btn.classList.toggle('memorized', memorized.has(page));
+}
+
+function toggleJuz(juzIndex) {
+  const juz = JUZ_DATA[juzIndex];
+  const allMem = isJuzComplete(juzIndex);
+  for (let p = juz.start; p <= juz.end; p++) {
+    if (allMem) memorized.delete(p);
+    else memorized.add(p);
+  }
+  save();
+  renderPages();
+  updateUI();
+}
+
+function isJuzComplete(juzIndex) {
+  const juz = JUZ_DATA[juzIndex];
+  for (let p = juz.start; p <= juz.end; p++) {
+    if (!memorized.has(p)) return false;
+  }
+  return true;
+}
+
+function updateUI() {
+  const count = memorized.size;
+  const remaining = 604 - count;
+  const pct = Math.round((count / 604) * 100);
+  const completedJuz = JUZ_DATA.filter((_, i) => isJuzComplete(i)).length;
+
+  document.getElementById('stat-memorized').textContent = count;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-juz').textContent = completedJuz;
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Update juz pills
+  JUZ_DATA.forEach((_, i) => {
+    const pill = document.getElementById('pill' + i);
+    if (pill) {
+      pill.classList.toggle('complete', isJuzComplete(i));
+    }
+  });
+}
+
+function renderPages() {
+  const container = document.getElementById('juz-blocks');
+  container.innerHTML = '';
+
+  JUZ_DATA.forEach((juz, juzIndex) => {
+    const block = document.createElement('div');
+    block.className = 'juz-block';
+    block.id = 'juz-block-' + juzIndex;
+
+    const total = juz.end - juz.start + 1;
+    const done = [...Array(total)].filter((_, i) => memorized.has(juz.start + i)).length;
+
+    block.innerHTML = `
+      <div class="juz-header">
+        <span class="juz-title">${juz.name}</span>
+        <span class="juz-badge">${done}/${total} صفحة</span>
+        <button class="juz-check-all" onclick="toggleJuz(${juzIndex})">
+          ${isJuzComplete(juzIndex) ? 'إلغاء الكل' : 'تحديد الكل'}
+        </button>
+      </div>
+      <div class="pages-grid" id="grid-${juzIndex}"></div>
+    `;
+
+    container.appendChild(block);
+
+    const grid = block.querySelector('#grid-' + juzIndex);
+    for (let p = juz.start; p <= juz.end; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (memorized.has(p) ? ' memorized' : '');
+      btn.id = 'p' + p;
+      btn.textContent = p;
+      btn.onclick = () => togglePage(p);
+      grid.appendChild(btn);
+    }
+  });
+}
+
+function renderPills() {
+  const container = document.getElementById('juz-pills');
+  JUZ_DATA.forEach((juz, i) => {
+    const pill = document.createElement('button');
+    pill.className = 'juz-pill' + (isJuzComplete(i) ? ' complete' : '');
+    pill.id = 'pill' + i;
+    pill.textContent = i + 1;
+    pill.title = juz.name;
+    pill.onclick = () => {
+      document.getElementById('juz-block-' + i)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    container.appendChild(pill);
+  });
+}
+
+function resetAll() {
+  if (!confirm('هل أنت متأكد من إعادة تعيين كل التقدم؟')) return;
+  memorized.clear();
+  save();
+  renderPages();
+  updateUI();
+  showToast('تمت إعادة التعيين');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+renderPills();
+renderPages();
+updateUI();
+</script>
+</body>
+</html>
